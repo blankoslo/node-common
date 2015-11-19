@@ -1,1 +1,1 @@
-exports.herokuHttpsRedirect = require('herokuHttpsRedirect.js');
+exports.herokuHttpsRedirect = require('./herokuHttpsRedirect.js');
