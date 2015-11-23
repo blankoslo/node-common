@@ -25,10 +25,7 @@ module.exports = function(req) {
                 return;
             }
 
-            // TODO: Get employee id.
-            req.session.google_data = data;
-            req.session.id_token = token;
-            resolve();
+            resolve(data);
         }
 
         var authReq = https.get(googAuthUri+token, (authRes) => {
