@@ -9,6 +9,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "google-auth-library": "^0.9.7",
     "promise": "^7.0.4"
   }
 }

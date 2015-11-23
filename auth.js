@@ -3,7 +3,10 @@ var https = require('https');
 // TODO: Remove whenever node gets native es6 promises.
 var Promise = require('promise/lib/es6-extensions');
 
-var googAuthUri = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
+var GoogleAuth = require('google-auth-library');
+var ga = new GoogleAuth();
+var jwtClient = new ga.JWTClient();
+var aud = '1085640931155-0f6l02jv973og8mi4nb124k6qlrh470p.apps.googleusercontent.com';
 
 module.exports = function(token) {
     return new Promise((resolve, reject) => {
@@ -12,30 +15,33 @@ module.exports = function(token) {
             return;
         }
 
-        var handleGoogleResponse = (data) => {
-            if (data.error_description) {
-                reject(data.error_description);
+        var callback = (err, data) => {
+            if (err) {
+                reject(err);
                 return;
             }
 
-            if (data.hd !== 'blankoslo.no') {
-                reject('Wrong (or no) domain.');
+            var payload = data.getPayload();
+
+            if (payload.aud !== aud) {
+                reject('Unrecognized client.');
                 return;
             }
 
-            resolve(data);
+            if (payload.iss !== 'accounts.google.com'
+                    || payload.iss !== 'https://accounts.google.com') {
+                reject('Wrong issuer.');
+                return;
+            }
+
+            if (payload.hd !== 'blankoslo.no') {
+                reject('Wrong hosted domain.');
+                return;
+            }
+
+            resolve(payload);
         }
 
-        var authReq = https.get(googAuthUri+token, (authRes) => {
-            var body = '';
-
-            authRes.on('data', (block) => {
-                body += block;
-            });
-
-            authRes.on('end', () => {
-                handleGoogleResponse(JSON.parse(body));
-            });
-        }).on('error', reject);
+        jwtClient.verifyIdToken(token, aud, callback);
     });
 }
