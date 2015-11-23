@@ -5,14 +5,12 @@ var Promise = require('promise/lib/es6-extensions');
 
 var googAuthUri = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token='
 
-module.exports = function(req) {
+module.exports = function(token) {
     return new Promise((resolve, reject) => {
-        if (!req.body.id_token) {
+        if (!token) {
             reject('No token');
             return;
         }
-
-        var token = req.body.id_token;
 
         var handleGoogleResponse = (data) => {
             if (data.error_description) {
