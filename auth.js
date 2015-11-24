@@ -29,7 +29,7 @@ function authenticate(token) {
             }
 
             if (payload.iss !== 'accounts.google.com'
-                    || payload.iss !== 'https://accounts.google.com') {
+                    && payload.iss !== 'https://accounts.google.com') {
                 reject('Wrong issuer.');
                 return;
             }
