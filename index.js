@@ -1,2 +1,2 @@
 exports.herokuHttpsRedirect = require('./herokuHttpsRedirect.js');
-exports.authenticate = require('./auth.js');
+exports.auth = require('./auth.js');

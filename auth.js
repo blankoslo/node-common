@@ -8,7 +8,7 @@ var ga = new GoogleAuth();
 var jwtClient = new ga.JWTClient();
 var aud = '1085640931155-0f6l02jv973og8mi4nb124k6qlrh470p.apps.googleusercontent.com';
 
-module.exports = function(token) {
+function authenticate(token) {
     return new Promise((resolve, reject) => {
         if (!token) {
             reject('No token');
@@ -45,3 +45,16 @@ module.exports = function(token) {
         jwtClient.verifyIdToken(token, aud, callback);
     });
 }
+
+function middleware(req, res, next) {
+    authenticate(req.headers.authorization)
+        .then(
+            (data) => {
+                req.googleuser = data;
+                next();
+            },
+            (err) => res.status(401).json(err)
+        );
+}
+
+module.exports = {authenticate, middleware};
