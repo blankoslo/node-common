@@ -1,60 +1,29 @@
 var https = require('https');
-
 // TODO: Remove whenever node gets native es6 promises.
 var Promise = require('promise/lib/es6-extensions');
 
-var GoogleAuth = require('google-auth-library');
-var ga = new GoogleAuth();
-var jwtClient = new ga.JWTClient();
-var aud = '1085640931155-0f6l02jv973og8mi4nb124k6qlrh470p.apps.googleusercontent.com';
+var jwt = require('jsonwebtoken');
+var API_TOKEN_SECRET = process.env.API_TOKEN_SECRET || "dev-secret-shhh";
 
-function authenticate(token) {
+function verifyAPIAccessToken(token) {
     return new Promise((resolve, reject) => {
-        if (!token) {
-            reject('No token');
-            return;
-        }
+        jwt.verify(token, API_TOKEN_SECRET, (err, data) => {
+            if (err) return reject(err);
 
-        var callback = (err, data) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-
-            var payload = data.getPayload();
-
-            if (payload.aud !== aud) {
-                reject('Unrecognized client.');
-                return;
-            }
-
-            if (payload.iss !== 'accounts.google.com'
-                    && payload.iss !== 'https://accounts.google.com') {
-                reject('Wrong issuer.');
-                return;
-            }
-
-            if (payload.hd !== 'blankoslo.no') {
-                reject('Wrong hosted domain.');
-                return;
-            }
-
-            resolve(payload);
-        }
-
-        jwtClient.verifyIdToken(token, aud, callback);
+            return resolve(data);
+        });
     });
 }
 
 function middleware(req, res, next) {
-    authenticate(req.headers.authorization)
+    verifyAPIAccessToken(req.headers.authorization)
         .then(
             (data) => {
-                req.googleuser = data;
+                req.tokenData = data;
                 next();
             },
             (err) => res.status(401).json(err)
         );
 }
 
-module.exports = {authenticate, middleware};
+module.exports = {verifyAPIAccessToken, middleware};
