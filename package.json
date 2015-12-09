@@ -9,7 +9,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "google-auth-library": "^0.9.7",
+    "jsonwebtoken": "^5.4.1",
     "pg": "^4.4.3",
     "promise": "^7.0.4"
   }
