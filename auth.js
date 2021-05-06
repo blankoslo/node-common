@@ -5,11 +5,11 @@ var Promise = require('promise/lib/es6-extensions');
 var jwt = require('jsonwebtoken');
 var API_TOKEN_SECRET = process.env.API_TOKEN_SECRET || "dev-secret-shhh";
 
-function signAPIAccessToken(payload) {
+function signAPIAccessToken(payload, expiresIn = '7d') {
     return jwt.sign(payload, API_TOKEN_SECRET, {
         // TODO: No refresh logic yet, so we simply let tokens
         // live for a week. Not optimal!
-        expiresIn: '7d'
+        expiresIn
     });
 }
 
